@@ -81,11 +81,14 @@ class HeroPowerResource(Resource):
         if strength not in ['Strong', 'Weak', 'Average']:
             abort(400, description="Invalid strength value")
 
-        hero_power = HeroPower(hero_id=hero_id, power_id=power_id, strength=strength)
-        db.session.add(hero_power)
-        db.session.commit()
-
-        return jsonify(hero_power.to_dict()), 201
+        try:
+            hero_power = HeroPower(hero_id=hero_id, power_id=power_id, strength=strength)
+            db.session.add(hero_power)
+            db.session.commit()
+            return jsonify(hero_power.to_dict()), 201
+        except Exception as e:
+            db.session.rollback()
+            abort(500, description=f"Server error: {str(e)}")
 
 # Add Resource Routes
 api.add_resource(HeroResource, '/heroes', '/heroes/<int:id>')
@@ -96,6 +99,19 @@ api.add_resource(HeroPowerResource, '/hero_powers')
 @app.route('/')
 def index():
     return '<h1>Code challenge</h1>'
+
+# Error handling
+@app.errorhandler(404)
+def not_found_error(error):
+    return jsonify({'error': str(error)}), 404
+
+@app.errorhandler(400)
+def bad_request_error(error):
+    return jsonify({'error': str(error)}), 400
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return jsonify({'error': str(error)}), 500
 
 # Run the application
 if __name__ == '__main__':

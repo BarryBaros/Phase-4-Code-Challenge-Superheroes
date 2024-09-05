@@ -16,7 +16,7 @@ class Hero(db.Model, SerializerMixin):
     __tablename__ = 'heroes'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
+    name = db.Column(db.String, nullable=False, index=True)
     super_name = db.Column(db.String, nullable=False)
 
     # Define relationship with HeroPower
@@ -35,7 +35,7 @@ class Power(db.Model, SerializerMixin):
     __tablename__ = 'powers'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
+    name = db.Column(db.String, nullable=False, index=True)
     description = db.Column(db.String, nullable=False)
 
     # Define relationship with HeroPower
@@ -47,8 +47,8 @@ class Power(db.Model, SerializerMixin):
     # Validate description
     @validates('description')
     def validate_description(self, key, description):
-        if len(description) < 10:
-            raise ValueError("Description must be at least 10 characters long.")
+        if len(description) < 20:
+            raise ValueError("Description must be at least 20 characters long.")
         return description
 
     def __repr__(self):
@@ -58,8 +58,8 @@ class HeroPower(db.Model, SerializerMixin):
     __tablename__ = 'hero_powers'
 
     id = db.Column(db.Integer, primary_key=True)
-    hero_id = db.Column(db.Integer, db.ForeignKey('heroes.id'), nullable=False)
-    power_id = db.Column(db.Integer, db.ForeignKey('powers.id'), nullable=False)
+    hero_id = db.Column(db.Integer, db.ForeignKey('heroes.id'), nullable=False, index=True)
+    power_id = db.Column(db.Integer, db.ForeignKey('powers.id'), nullable=False, index=True)
     strength = db.Column(db.String, nullable=False)
 
     # Define relationships
